@@ -1,0 +1,144 @@
+backend/server.js
+
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import authRoutes from './routes/authRoutes.js';
+import circleRoutes from './routes/circleRoutes.js';
+import locationRoutes from './routes/locationRoutes.js';
+import recommendationRoutes from './routes/recommendationRoutes.js';
+// …otros routes necesarios
+import { pool } from './db.js';
+
+dotenv.config();
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+app.use('/api/auth', authRoutes);
+app.use('/api/circles', circleRoutes);
+app.use('/api/location', locationRoutes);
+app.use('/api/recommendations', recommendationRoutes);
+// …otros use()
+
+app.get('/', (req, res) => res.send('Flux Trails API'));
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🧭 Backend activo en puerto ${PORT}`));
+
+⚙️ backend/db.js
+
+import pkg from 'pg';
+const { Pool } = pkg;
+
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production'
+    ? { rejectUnauthorized: false }
+    : false
+});
+
+🚀 frontend/src/App.js
+
+import React, { useState } from 'react';
+import RetroTheme from './RetroTheme.css';
+import IntroSequence from './components/IntroSequence';
+import TrailerSequence from './components/TrailerSequence';
+import FinalCredits from './components/FinalCredits';
+import AutoShowcase from './components/AutoShowcase';
+
+const App = () => {
+  const [view, setView] = useState('intro');
+
+  return (
+    <>
+      {view === 'intro' && <IntroSequence onComplete={() => setView('trailer')} />}
+      {view === 'trailer' && <TrailerSequence onFinish={() => setView('credits')} />}
+      {view === 'credits' && <FinalCredits onReturn={() => setView('showcase')} />}
+      {view === 'showcase' && <AutoShowcase />}
+    </>
+  );
+};
+
+import React from 'react';
+import './IntroSequence.css';
+
+const IntroSequence = ({ onComplete }) => {
+  return (
+    <div className="intro-sequence">
+      <h1>Welcome to Flux Trails</h1>
+      <button onClick={onComplete}>Start</button>
+    </div>
+  );
+};
+
+export default IntroSequence;
+.intro-sequence {
+  text-align: center;
+  padding-top: 20%;
+}
+
+.intro-sequence h1 {
+  font-size: 2.5rem;
+  color: var(--bttf-cyan);
+}
+
+.intro-sequence button {
+  margin-top: 20px;
+  cursor: pointer;
+}
+import React from 'react';
+import './TrailerSequence.css';
+
+const TrailerSequence = ({ onFinish }) => {
+  return (
+    <div className="trailer-sequence">
+      <h1>Experience the Adventure</h1>
+      <button onClick={onFinish}>Next</button>
+    </div>
+  );
+};
+
+export default TrailerSequence;
+.trailer-sequence {
+  text-align: center;
+  padding-top: 20%;
+}
+
+.trailer-sequence h1 {
+  font-size: 2.5rem;
+  color: var(--bttf-red);
+}
+
+.trailer-sequence button {
+  margin-top: 20px;
+  cursor: pointer;
+}
+import React from 'react';
+import './FinalCredits.css';
+
+const FinalCredits = ({ onReturn }) => {
+  return (
+    <div className="final-credits">
+      <h1>Thank You for Watching</h1>
+      <button onClick={onReturn}>Return</button>
+    </div>
+  );
+};
+
+export default FinalCredits;
+.final-credits {
+  text-align: center;
+  padding-top: 20%;
+}
+
+.final-credits h1 {
+  font-size: 2.5rem;
+  color: var(--bttf-green);
+}
+
+.final-credits button {
+  margin-top: 20px;
+  cursor: pointer;
+}
+
